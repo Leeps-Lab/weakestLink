@@ -150,6 +150,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			});
 			rs.on('next_round', function () {
 				rs.set_points(self.totalScore);
+				// if the rounds are over the amount wanted, goes to next period
 				if($scope.rounds && $scope.round >= $scope.rounds) {
 					rs.trigger("continue");
 					return;
@@ -169,10 +170,12 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 					rs.trigger("next_round");
 				}
 			});
-			
+			// what is the use? roundStartTime and $scope.roundStartTime should
+			// be the same
 			rs.on("roundStartTime", function(roundStartTime) {
 				$scope.roundStartTime = Math.min(roundStartTime, $scope.roundStartTime);
 			});
+			// there are no start("roundStartTime")
 			rs.recv("roundStartTime", function(sender, roundStartTime) {
 				$scope.roundStartTime = Math.min(roundStartTime, $scope.roundStartTime);
 			});
