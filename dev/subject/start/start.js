@@ -1,5 +1,5 @@
 Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "SynchronizedStopWatch", function($rootScope, $scope, rs, stopwatch) {
-
+	
 	function Get () {}
 	Get.prototype = {
 		minX : function (data) {
@@ -38,18 +38,18 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		}
 	};
 	var get = new Get();
-
+	
 	function TimeKeeper () {
-
+	
 		// Redwood
 		this.state = 'INIT';
 		this.roundDurationInSeconds = 60;
 		this.usernames = [];
-
+		
 		// Graph
 		this.position = {
 			yours: [], // playData[3], 3
-			hover: [], // playData[2], 2
+			hover: [], // playData[2], 2 
 			all: [], // playData[1], 1
 			curve: [] // playData[0], 0
 		};
@@ -75,7 +75,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		this.totalScore = 0;
 		this.setReceive();
 	}
-
+	
 	TimeKeeper.prototype = {
 		setReceive : function () { var self = this;
 			// Config
@@ -97,7 +97,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				self.playData[2].points.show = false;
 			}
 			self.setGroup();
-
+			
 			// Ticks
 			var doTimerUpdate = function() {
 			  var now = new Date().getTime();
@@ -121,11 +121,11 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						}
 						if (rs.config.showAveragePayoff) self.statData[1].data.push([self.elapsedTime, self.payoffRate.average]);
 						if (rs.config.showTopPayoff) self.statData[2].data.push([self.elapsedTime, self.payoffRate.top]);
+
 						self.setAutomation(self.elapsedTime);
 						self.loadData();
 						$('#timeLeft').html('Seconds Left:<br>'+($scope.config.roundDurationInSeconds-self.elapsedTime));
-						// if (self.subjectID % rs.subjects.length == 0)
-						// rs.trigger("echo", {time: (tick/self.frameRate).toFixed(2), alpha: self.alpha, beta: self.beta});
+
 						if (self.elapsedTime >= self.roundDurationInSeconds)
 						  self.state = 'DONE';
 						break;
@@ -141,8 +141,8 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			  if (!self.timer) {
 			    self.lastFrameTime = new Date().getTime();
 			    self.elapsedTime = 0;
-					$scope.timeRemaining = 0;
-					self.timer = setInterval(doTimerUpdate, 50 /*self.frameRate*/);
+				$scope.timeRemaining = 0;
+				self.timer = setInterval(doTimerUpdate, 50 /*self.frameRate*/);
 			  }
 			};
 			rs.on("continue", function() {
@@ -155,25 +155,28 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 					return;
 				}
 				$scope.round++;
+
 				rs.synchronizationBarrier('round-' + $scope.round).then(function() {
 					$scope.roundStartTime = (new Date()).getTime() / 1000;
 					rs.trigger("roundStartTime", $scope.roundStartTime);
 					checkTime();
 				});
 			});
+
 			rs.recv("next_round", function() {
 				if ($scope.roundStartTime) {
 					$scope.roundStartTime = null;
 					rs.trigger("next_round");
 				}
 			});
+			
 			rs.on("roundStartTime", function(roundStartTime) {
 				$scope.roundStartTime = Math.min(roundStartTime, $scope.roundStartTime);
 			});
 			rs.recv("roundStartTime", function(sender, roundStartTime) {
 				$scope.roundStartTime = Math.min(roundStartTime, $scope.roundStartTime);
 			});
-
+			
 			rs.on('beta', function (m) {
 				$('#beta').html('Beta = '+m.beta);
 				self.beta = m.beta; self.setPositions(); self.setCurve(); self.loadData();
@@ -347,7 +350,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				  player = 'You';
 				  this.position.yours = this.position.all[i];
 				} else player = 'P'+this.usernames[player];
-
+				
 				if (this.targetPosition[i]) {
 				  var diff = this.targetPosition[i] - this.position.all[i][0];
 				  var changeRate = rs.config.interpolationRate ? rs.config.interpolationRate / 20.0 : 0.05;
@@ -360,11 +363,11 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			  }
 			  else
 			    this.targetPosition[i] = this.position.all[i][0];
-
+				
 				this.position.all[i][1] = get.payoff(this.beta, this.alpha, this.position.all, this.position.all[i][0]);
 				if (occupiedX[this.position.all[i][0]]) occupiedX[this.position.all[i][0]] += 30; else occupiedX[this.position.all[i][0]] = 50;
 				this.showTooltip(i, axes.xaxis.scale * (this.position.all[i][0] - this.minPos) + offset.left, axes.yaxis.scale * (axes.yaxis.max - this.position.all[i][1]) + offset.top + occupiedX[this.position.all[i][0]], player);
-
+			
 			}
 			if (!(this.position.hover[0])) this.position.hover = [this.position.yours[0], 0];
 			var projections = [].concat(this.position.all),
@@ -436,7 +439,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			this.setPositions(); this.setCurve();
 		}
 	};
-
+		
 	rs.on_load(function() {
 		var timeKeeper = new TimeKeeper();
 		rs.trigger("next_round");
