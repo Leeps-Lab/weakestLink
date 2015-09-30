@@ -1,0 +1,76 @@
+{% load verbatim %}
+<!DOCTYPE HTML>
+<html ng-app="Redwood">
+	<head>
+		<title>Wait</title>
+
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/lib/jquery/jquery.min.js"></script>
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/lib/bootstrap/bootstrap-3.1.1.min.js"></script>
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/lib/angular/angular-1.2.16.js"></script>
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/redwoodCore.js"></script>
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/redwoodHelpers.js"></script>
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/redwoodSubject.js"></script>
+		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}framework/css/bootstrap-3.1.1.min.css"></link>
+		<script type="text/javascript">
+			{{ js }}
+		</script>
+		<style type="text/css">
+			{{ css }}
+		</style>
+	</head>
+{% verbatim %}
+	<body ng-controller="SubjectCtrl">
+
+		<div class="navbar navbar-fixed-top container">
+			<div class="navbar navbar-default" style="margin-bottom: 0;">
+				<div class="navbar-brand" href="#">Economics Experiment</div>
+				<ul class="nav navbar-nav">
+					<li class="active">
+						<a>User ID: <span>{{ $root.user_id }}</span></a>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<div id="instruction" class="container" hidden>
+			<div class="row">
+				<div class="col-lg-12 instruction" style="margin-top: 50px; padding:50px;">
+					<p>Charles, Logan, Tony, and Peter are matched together in a round. They each select a position between 1 and 10 to locate themselves, and their payout reflects both their own play as well as the lowest chosen play among their group. The penalty parameter b is equal to <span class="beta"></span>. Recall that your payoff rate is</p>
+					<div class="stretch center bigFont"> &#928 = M - b * (x - M) </div>
+					<p>where M is the group’s minimum play and x is your play.</p>
+					<ul>
+						<li>Charles chooses to play at <span id="p0"></span></li>
+						<li>Logan chooses to play at <span id="p1"></span></li>
+						<li>Tony chooses to play at <span id="p2"></span></li>
+						<li>Peter chooses to play at <span id="p3"></span></li>
+					</ul>
+					<form>
+					<p> In this example, M = <span class="M"></span>, b = <span class="beta"></span>, and x for Logan = <span class="examplePlayer"></span>. This means that Logan's payout rate is equal to <span class="examplePayoff"></span>, calculated as follows:</p>
+					<div class="stretch center bigFont"><span class="examplePayoff"></span> = <span class="M"></span> - <span class="beta"></span> * (<span class="examplePlayer"></span> - <span class="M"></span>)</div>
+						<fieldset>
+							<span class="question">Question 1: What is the difference between CHARLES' play and the group minimum M? </span>
+							<input class="answer" id="a0" type="text"/>
+							<span class="msg" id="m0"></span>
+						</fieldset>
+						<fieldset>
+							<span class="question">Question 2: What is the payout rate for CHARLES?</span>
+							<input class="answer" id="a1" type="text"/>
+							<span class="msg" id="m1"></span>
+						</fieldset>
+						<fieldset>
+							<span class="question">Question 3: What is the payout rate for TONY?</span>
+							<input class="answer" id="a2" type="text"/>
+							<span class="msg" id="m2"></span>
+						</fieldset>
+						<fieldset>
+							<span class="question">Question 4: What is TONY’S payout rate if he changed his play to <span id="v1"></span>?</span>
+							<input class="answer" id="a3" type="text"/>
+							<span class="msg" id="m3"></span>
+						</fieldset>
+					</form>
+ 				</div>
+			</div>
+		</div>
+	</body>
+{% endverbatim %}
+</html>

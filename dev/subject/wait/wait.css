@@ -1,0 +1,54 @@
+body {
+	font-size: 20px;
+	padding-top: 10px;
+}
+
+.instruction {
+	border: 3px solid #AAA;
+	border-radius: 10px;
+	background: #36B;
+	color: #FFF;
+}
+
+.instruction:hover {
+	background: #47C;
+}
+
+.question {
+	padding: 10px;
+	float: left;
+}
+
+.answer {
+	padding: 5px;
+	margin: 5px;
+	border-radius: 10px;
+	background: #BBB;
+	color: #000;
+	float: right;
+	width: 10%;
+}
+
+.answer:hover {
+	background: #FFF;
+}
+
+.msg {
+	padding: 5px;
+	margin: 5px;
+	color: #FFF;
+	float: right;
+}
+
+.stretch {
+  width: 100%;
+}
+.center {
+  text-align: center;
+}
+.bigFont {
+  font-size: 120%;
+}
+}
+}
+}

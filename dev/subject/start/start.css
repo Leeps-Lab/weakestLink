@@ -1,0 +1,66 @@
+body {
+  padding-top: 10px;
+  text-align: center;
+}
+
+.main {
+  padding-top: 50px;
+}
+
+label {
+	border: 2px solid #ABCDEF;
+	border-radius: 5px;
+  height: 50px;
+	width: 150px;
+	margin: auto;
+}
+table {
+	margin: auto;
+	margin-top: 10px;
+}
+td {
+  margin: 5px;
+  padding: 5px;
+}
+
+input[type='range']:hover {
+	cursor: pointer;
+}
+.plot {
+	width: 400px;
+	height: 500px;
+	margin: 20px;
+	display: inline-block;
+}
+.controls {
+	padding: 10px;
+	border: 2px solid #ABCDEF;
+	border-radius: 10px;
+	background: #333333;
+	color: #FFFFFF;
+}
+
+.meter {
+	height: 16px;
+	position: relative;
+	background: transparent;
+	border-radius: 25px;
+	border: 2px solid #999999;
+	padding: 2px;
+	margin: 5px;
+}
+
+.meter > span {
+	display: block;
+	height: 8px;
+	padding: 2px;
+	border-radius: 25px;
+	background-color: rgb(255,100,100);
+	position: relative;
+	overflow: hidden;
+}
+
+.tooltip {
+  cursor:pointer;
+  pointer-events:none;
+}

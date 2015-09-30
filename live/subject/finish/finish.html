@@ -1,0 +1,61 @@
+{% load verbatim %}
+<!DOCTYPE HTML>
+<html ng-app="Redwood">
+	<head>
+		<title>Finish</title>
+
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/lib/jquery/jquery.min.js"></script>
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/lib/bootstrap/bootstrap-3.1.1.min.js"></script>
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/lib/angular/angular-1.2.16.js"></script>
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/redwoodCore.js"></script>
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/redwoodHelpers.js"></script>
+		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/redwoodSubject.js"></script>
+		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}framework/css/bootstrap-3.1.1.min.css"></link>
+		<script type="text/javascript">
+			{{ js }}
+		</script>
+		<style type="text/css">
+			{{ css }}
+		</style>
+	</head>
+{% verbatim %}
+	<body ng-controller="SubjectCtrl">
+
+		<div class="navbar navbar-fixed-top container">
+			<div class="navbar navbar-default" style="margin-bottom: 0;">
+				<div class="navbar-brand" href="#">Economics Experiment</div>
+				<ul class="nav navbar-nav">
+					<li class="active">
+						<a>User ID: <span>{{ $root.user_id }}</span></a>
+					</li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="container" style="margin-top: 45px;">
+			<table class="table table-bordered table-condensed">
+				<thead>
+					<tr><th>Period</th><th>Points</th></tr>
+				</thead>
+				<tbody id="results">
+					<tr ng-repeat="points in pointsByPeriod track by $index">
+						<td>{{ $index + 1 }}</td><td>{{ points * conversionRate | number:2 }}</td>
+					</tr>
+					<tr class="warning">
+						<td>Average:</td><td>{{ ($root.totalPoints / ($root.period - 1) || 0) | number:2 }}</td>
+					</tr>
+					<tr class="warning">
+						<td>Coversion Rate:</td><td>{{ (conversionRate || 0) | number:2 }}</td>
+					</tr>
+					<tr class="warning">
+						<td>Show-Up Fee:</td><td>{{ (showUpFee || 0) | number:2 }}</td>
+					</tr>
+					<tr class="success">
+						<td>Total:</td><td>{{ $root.totalPoints / ($root.period - 1) * conversionRate + showUpFee | number:2 }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</body>
+{% endverbatim %}
+</html>
