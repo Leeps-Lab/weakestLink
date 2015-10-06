@@ -125,18 +125,19 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						self.setAutomation(self.elapsedTime);
 						self.loadData();
 						$('#timeLeft').html('Seconds Left:<br>'+($scope.config.roundDurationInSeconds-self.elapsedTime));
+            break;
 					default:
 						console.log("variable is wrong, check doTimerUpdate function");
 						break;
 				}
-			}
+			};
 			var checkTime = function() {
 		    self.lastFrameTime = new Date().getTime();
 		    self.elapsedTime = 0;
 				$scope.timeRemaining = 0;
 				if (!self.timer) {
         	self.timer = SynchronizedStopWatch.instance()
-            .frequency(1).onTick(doTimerUpdate)
+            .frequency(3).onTick(doTimerUpdate)
             .duration(rs.config.roundDurationInSeconds).onComplete(function() {
                 rs.trigger("next_round");
             }
@@ -145,7 +146,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			  } else {
 					self.timer = false;
         	self.timer = SynchronizedStopWatch.instance()
-            .frequency(1).onTick(doTimerUpdate)
+            .frequency(3).onTick(doTimerUpdate)
             .duration(rs.config.roundDurationInSeconds).onComplete(function() {
                 rs.trigger("next_round");
             }
@@ -188,6 +189,12 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				self.targetPosition[m.subjectID] = m.pos;
 				self.setPositions(); self.setCurve(); self.loadData();
 			});
+			rs.recv('init', function (sender, m) {
+				if (m.group != self.group) return;
+				if (m.subjectID == self.subjectID) self.position.yours = m.point;
+				self.position.all[m.subjectID] = m.point;
+				self.setPositions(); self.setCurve(); self.loadData();
+			});
 			rs.on('init', function (m) {
 				if (m.group != self.group) return;
 				if (m.subjectID == self.subjectID) self.position.yours = m.point;
@@ -213,6 +220,12 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				self.setPositions(); self.setCurve(); self.loadData();
 			});
 			rs.on('changeNames', function (m) {
+				if (m.group != self.group) return;
+				for (var i = 0; i < m.names.length; i++) {
+					self.usernames[m.names[i].user_id] = i+1;
+				}
+			});
+			rs.recv('changeNames', function (sender, m) {
 				if (m.group != self.group) return;
 				for (var i = 0; i < m.names.length; i++) {
 					self.usernames[m.names[i].user_id] = i+1;
@@ -355,9 +368,9 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			var projections = [].concat(this.position.all),
 				hasSaturation = false;
 			projections[this.subjectID] = this.position.hover;
-			for (var i in projections) {
+			for (i in projections) {
 				projections[i][1] = get.payoff(this.beta, this.alpha, projections, projections[i][0]);
-				if (projections[i][1] == 0) hasSaturation = true;
+				if (projections[i][1] === 0) hasSaturation = true;
 			}
 			var selected = [this.position.hover[0], get.payoff(this.beta, this.alpha, projections, this.position.hover[0])];
 			if (this.saturateAtZero && hasSaturation)
@@ -407,7 +420,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 					}
 				}
 			}
-			for (var i = ba.length-1; i >= 0; i--) {
+			for (i = ba.length-1; i >= 0; i--) {
 				if (node >= ba[i][1]) {
 					if (ba[i][0] == 'linear' && ba[i+1]) {
 						this.beta = ba[i][2] + (ba[i+1][2] - ba[i][2]) * (node - ba[i][1]) / (ba[i+1][1] - ba[i][1]);
