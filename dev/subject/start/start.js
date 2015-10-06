@@ -1,4 +1,4 @@
-Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "SynchronizedStopWatch", function($rootScope, $scope, rs, stopwatch) {
+Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "SynchronizedStopWatch", function($rootScope, $scope, rs, SynchronizedStopWatch) {
 
 	function Get () {}
 	Get.prototype = {
@@ -136,7 +136,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				$scope.timeRemaining = 0;
 				if (!self.timer) {
         	self.timer = SynchronizedStopWatch.instance()
-            .frequency(0.5).onTick(doTimerUpdate)
+            .frequency(1).onTick(doTimerUpdate)
             .duration(rs.config.roundDurationInSeconds).onComplete(function() {
                 rs.trigger("next_round");
             }
@@ -145,7 +145,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			  } else {
 					self.timer = false;
         	self.timer = SynchronizedStopWatch.instance()
-            .frequency(0.5).onTick(doTimerUpdate)
+            .frequency(1).onTick(doTimerUpdate)
             .duration(rs.config.roundDurationInSeconds).onComplete(function() {
                 rs.trigger("next_round");
             }
