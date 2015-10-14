@@ -188,6 +188,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				}*/
 				self.targetPosition[m.subjectID] = m.pos;
 				self.setPositions(); self.setCurve(); self.loadData();
+				console.log('someone clicked');
 			});
 			rs.recv('init', function (sender, m) {
 				if (m.group != self.group) return;
@@ -209,15 +210,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			rs.recv('alpha', function (sender, m) {
 				$('#alpha').html('Alpha = '+m.alpha);
 				self.alpha = m.alpha; self.setPositions(); self.setCurve(); self.loadData();
-			});
-			rs.recv('position', function (sender, m) {
-				if (m.group != self.group) return;
-				/*self.position.all[m.subjectID] = [m.pos, get.payoff(self.beta, self.alpha, self.position.all, m.pos)];
-				if (m.subjectID == self.subjectID) {
-					self.position.yours = self.position.all[m.subjectID];
-				}*/
-				self.targetPosition[m.subjectID] = m.pos;
-				self.setPositions(); self.setCurve(); self.loadData();
 			});
 			rs.on('changeNames', function (m) {
 				if (m.group != self.group) return;
