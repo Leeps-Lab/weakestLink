@@ -35,7 +35,7 @@
 				<div class="navbar-right">
 					<div class="navbar-text">Period: <span>{{$root.period}}</span></div>
 					<div class="navbar-text">Round: <span>{{round}} / {{rounds}}</span></div>
-					<div class="navbar-text" id="timer">Time: <span>{{timeKeeper.timer.getDurationInTicks() | timeString}}</span></div>
+					<div class="navbar-text" id="timer">Time: <span>{{timeKeeper.timer.getDurationInTicks() - timeKeeper.ticknum}}</span></div>
 				</div>
 			</div>
 		</div>

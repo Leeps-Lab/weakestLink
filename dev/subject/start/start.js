@@ -40,6 +40,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 	var get = new Get();
 
 	function TimeKeeper () {
+		this.ticknum = 0;
 
 		// Redwood
 		this.state = 'INIT';
@@ -100,11 +101,13 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 
 			// Ticks
 			var doTimerUpdate = function() {
+				console.log("time to update");
 			  var now = new Date().getTime();
 			  var delta = (now - self.lastFrameTime) / 1000;
 			  self.lastFrameTime = now;
 			  self.elapsedTime += delta;
 			  $scope.timeRemaining = $scope.timeTotal - self.elapsedTime;
+				self.ticknum++;
 				if (rs.config.hideTimer) $('#timer').hide();
 				switch (self.state) {
 					case 'INIT':
@@ -116,12 +119,15 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						self.setPayoffRates();
 						if (rs.config.showYourPayoff) {
 							var select = self.payoffRate.yours > 0 ? [0,3] : [3,0];
+							// where the payoff data is located
 							self.statData[select[0]].data.push([self.elapsedTime, self.payoffRate.yours]);
 							self.statData[select[1]].data.push([self.elapsedTime, 0]);
 						}
+						// where the payoff data is located
 						if (rs.config.showAveragePayoff) self.statData[1].data.push([self.elapsedTime, self.payoffRate.average]);
 						if (rs.config.showTopPayoff) self.statData[2].data.push([self.elapsedTime, self.payoffRate.top]);
 
+						// what does this do?
 						self.setAutomation(self.elapsedTime);
 						self.loadData();
 						$('#timeLeft').html('Seconds Left:<br>'+($scope.config.roundDurationInSeconds-self.elapsedTime));
@@ -135,24 +141,18 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		    self.lastFrameTime = new Date().getTime();
 		    self.elapsedTime = 0;
 				$scope.timeRemaining = 0;
-				if (!self.timer) {
-        	self.timer = SynchronizedStopWatch.instance()
-            .frequency(3).onTick(doTimerUpdate)
-            .duration(rs.config.roundDurationInSeconds).onComplete(function() {
-                rs.trigger("next_round");
-            }
-					);
-					self.timer.start();
-			  } else {
+				if (self.timer) {
 					self.timer = false;
-        	self.timer = SynchronizedStopWatch.instance()
-            .frequency(3).onTick(doTimerUpdate)
-            .duration(rs.config.roundDurationInSeconds).onComplete(function() {
-                rs.trigger("next_round");
-            }
-					);
-					self.timer.start();
 				}
+				console.log(self);
+      	self.timer = SynchronizedStopWatch.instance()
+          .frequency(500).onTick(doTimerUpdate)
+          .duration(rs.config.roundDurationInSeconds).onComplete(function() {
+						console.log("timer is done");
+            rs.trigger("next_round");
+          }
+				);
+				self.timer.start();
 			};
 			rs.on("continue", function() {
 				rs.next_period();
@@ -210,6 +210,15 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			rs.recv('alpha', function (sender, m) {
 				$('#alpha').html('Alpha = '+m.alpha);
 				self.alpha = m.alpha; self.setPositions(); self.setCurve(); self.loadData();
+			});
+			rs.recv('position', function (sender, m) {
+				if (m.group != self.group) return;
+				/*self.position.all[m.subjectID] = [m.pos, get.payoff(self.beta, self.alpha, self.position.all, m.pos)];
+					if (m.subjectID == self.subjectID) {
+					self.position.yours = self.position.all[m.subjectID];
+				}*/
+				self.targetPosition[m.subjectID] = m.pos;
+				self.setPositions(); self.setCurve(); self.loadData();
 			});
 			rs.on('changeNames', function (m) {
 				if (m.group != self.group) return;
@@ -280,13 +289,23 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			if (self.minPay) this.statOptions.yaxis.min = self.minPay;
 		},
 		setRedrawPlots : function (self) {
+			//self.timer.frequency(200).onTick(self.drawPlots)
+			/*
 			setInterval(function () {
 				self.playPlot.draw();
 				self.statPlot.draw();
 			}, 200);
+			*/
+		},
+		drawPlots : function() {
+			if (!this.playPlot || !this.statPlot) {
+				this.playPlot.draw();
+				this.statPlot.draw();
+			}
 		},
 		setupEvents : function (self) {
 			this.lastX = -1; this.lastY = -1; var x;
+			// draws when it sees this
 			$('#playContainer').bind("plothover", function (event, pos, item) {
 				$(this).css('cursor', 'pointer');
 				x = Math.round(pos.x);
@@ -322,6 +341,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				.show().appendTo("body").fadeIn(1000);
 		},
 		loadData : function () {
+			// shows up on screen
 			this.playPlot = $.plot($('#playContainer'), this.playData, this.playOptions);
 			this.statPlot = $.plot($('#statContainer'), this.statData, this.statOptions);
 		},
@@ -428,7 +448,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 	};
 
 	rs.on_load(function() {
-		var timeKeeper = new TimeKeeper();
+		$scope.timeKeeper = new TimeKeeper();
 		rs.trigger("next_round");
 	});
 }]);
