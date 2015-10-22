@@ -109,6 +109,8 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			  $scope.timeRemaining = $scope.timeTotal - self.elapsedTime;
 				self.ticknum++;
 				if (rs.config.hideTimer) $('#timer').hide();
+
+				$scope.alreadymoved = false;
 				switch (self.state) {
 					case 'INIT':
 						//self.setGroup();
@@ -307,11 +309,15 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			this.lastX = -1; this.lastY = -1; var x;
 			// draws when it sees this
 			$('#playContainer').bind("plothover", function (event, pos, item) {
-				$(this).css('cursor', 'pointer');
-				x = Math.round(pos.x);
-				if (x <= self.minPos) x = self.minPos; else if (x > self.maxPos) x = self.maxPos;
-				self.position.hover[0] = x; self.selectedPosition = x;
-				self.setPositions(); self.setCurve(); self.loadData();
+				if (!$scope.alreadymoved) {
+					$(this).css('cursor', 'pointer');
+					x = Math.round(pos.x);
+					if (x <= self.minPos) x = self.minPos; else if (x > self.maxPos) x = self.maxPos;
+					self.position.hover[0] = x; self.selectedPosition = x;
+					self.setPositions(); self.setCurve(); self.loadData();
+
+					$scope.alreadymoved = true;
+				}
 			});
 			$('#playContainer').bind("plotclick", function (event, pos, item) {
 				$(this).css('cursor', 'pointer');
@@ -448,6 +454,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 	};
 
 	rs.on_load(function() {
+		$scope.alreadymoved = false;
 		$scope.timeKeeper = new TimeKeeper();
 		rs.trigger("next_round");
 	});
