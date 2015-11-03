@@ -309,15 +309,11 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			this.lastX = -1; this.lastY = -1; var x;
 			// draws when it sees this
 			$('#playContainer').bind("plothover", function (event, pos, item) {
-				if (!$scope.alreadymoved) {
-					$(this).css('cursor', 'pointer');
-					x = Math.round(pos.x);
-					if (x <= self.minPos) x = self.minPos; else if (x > self.maxPos) x = self.maxPos;
-					self.position.hover[0] = x; self.selectedPosition = x;
-					self.setPositions(); self.setCurve(); self.loadData();
-
-					$scope.alreadymoved = true;
-				}
+				$(this).css('cursor', 'pointer');
+				x = Math.round(pos.x);
+				if (x <= self.minPos) x = self.minPos; else if (x > self.maxPos) x = self.maxPos;
+				self.position.hover[0] = x; self.selectedPosition = x;
+				self.setHover();
 			});
 			$('#playContainer').bind("plotclick", function (event, pos, item) {
 				$(this).css('cursor', 'pointer');
@@ -350,6 +346,22 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			// shows up on screen
 			this.playPlot = $.plot($('#playContainer'), this.playData, this.playOptions);
 			this.statPlot = $.plot($('#statContainer'), this.statData, this.statOptions);
+		},
+		setPayoffRates : function () {
+			this.payoffRate.yours = get.payoff(this.beta, this.alpha, this.position.all, this.position.yours[0]);
+			this.payoffRate.average = get.average(this.beta, this.alpha, this.position.all);
+			this.payoffRate.top = get.top(this.beta, this.alpha, this.position.all);
+			if (this.saturateAtZero) {
+				for (var type in this.payoffRate)
+					if (this.payoffRate[type] < 0) this.payoffRate[type] = 0;
+			}
+			this.payoffRate.penalty = get.penalty(this.beta, this.position.all, this.position.yours[0]);
+			var penalty = this.beta / this.minBeta;// = -this.beta * ((this.position.yours[0] - get.minX(this.position.all)) / (2 * (this.maxPos - this.minPos)));
+			var scale = this.frameRate * this.roundDurationInSeconds;
+			$('#currScore').html('Earning Rate:<br>'+(this.payoffRate.yours / scale).toFixed(3));
+			this.totalScore += (this.payoffRate.yours / scale);
+			$('#earnings').html('Earnings:<br>'+this.totalScore.toFixed(3));
+			$('#penalty').css('width', penalty.toFixed(2) * 100 + '%');
 		},
 		setPositions : function () {
 			if (!this.playPlot || !this.playPlot.getPlaceholder()) return;
@@ -399,22 +411,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			this.playData[2].data = projections.sort(get.compareX);
 			this.playData[1].data = this.position.all;
 		},
-		setPayoffRates : function () {
-			this.payoffRate.yours = get.payoff(this.beta, this.alpha, this.position.all, this.position.yours[0]);
-			this.payoffRate.average = get.average(this.beta, this.alpha, this.position.all);
-			this.payoffRate.top = get.top(this.beta, this.alpha, this.position.all);
-			if (this.saturateAtZero) {
-				for (var type in this.payoffRate)
-					if (this.payoffRate[type] < 0) this.payoffRate[type] = 0;
-			}
-			this.payoffRate.penalty = get.penalty(this.beta, this.position.all, this.position.yours[0]);
-			var penalty = this.beta / this.minBeta;// = -this.beta * ((this.position.yours[0] - get.minX(this.position.all)) / (2 * (this.maxPos - this.minPos)));
-			var scale = this.frameRate * this.roundDurationInSeconds;
-			$('#currScore').html('Earning Rate:<br>'+(this.payoffRate.yours / scale).toFixed(3));
-			this.totalScore += (this.payoffRate.yours / scale);
-			$('#earnings').html('Earnings:<br>'+this.totalScore.toFixed(3));
-			$('#penalty').css('width', penalty.toFixed(2) * 100 + '%');
-		},
 		setCurve : function () {
 			var isMin = this.position.yours[0] == get.minX(this.position.all);
 			var all = [].concat(this.position.all).sort(get.compareX);
@@ -423,6 +419,21 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			this.playData[0].data[0] = [0, 0];
 			this.playData[0].data[1] = [minX, get.payoff(this.beta, this.alpha, all, minX)];
 			this.playData[0].data[2] = [endPoint, 0];
+			this.playData[0].data[3] = [this.maxPos, get.payoff(this.beta, this.alpha, all, this.maxPos)];
+		},
+		setHover : function() {
+			var projections = [].concat(this.position.all),
+				hasSaturation = false;
+			projections[this.subjectID] = this.position.hover;
+			for (i in projections) {
+				projections[i][1] = get.payoff(this.beta, this.alpha, projections, projections[i][0]);
+				if (projections[i][1] === 0) hasSaturation = true;
+			}
+			var selected = [this.position.hover[0], get.payoff(this.beta, this.alpha, projections, this.position.hover[0])];
+			if (this.saturateAtZero && hasSaturation)
+				projections.push([get.endPoint(this.beta, this.alpha, projections, this.maxPos), 0]);
+			this.playPlot = $.plot($('#playContainer'), this.playData, this.playOptions);
+			this.playData[3].data = [this.position.yours, selected];
 			this.playData[0].data[3] = [this.maxPos, get.payoff(this.beta, this.alpha, all, this.maxPos)];
 		},
 		setAutomation : function (tick) { var self = this;
