@@ -83,6 +83,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			self.roundDurationInSeconds = rs.config.roundDurationInSeconds ? rs.config.roundDurationInSeconds : 60;
 			self.alpha = 1; self.beta = -1;
 			self.minPos = !isNaN(rs.config.minPos) ? rs.config.minPos : 0;
+			// set maxPos through Ticks rather than seconds
 			self.maxPos = !isNaN(rs.config.maxPos) ? rs.config.maxPos : 10;
 			self.minPay = rs.config.minPay; self.maxPay = rs.config.maxPay;
 			self.alphaAutomation = rs.config.alphaAutomation ? JSON.parse(rs.config.alphaAutomation.replace(/'/g,'"')) : [];
@@ -132,7 +133,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						// what does this do?
 						self.setAutomation(self.elapsedTime);
 						self.loadData();
-						$('#timeLeft').html('Seconds Left:<br>'+($scope.config.roundDurationInSeconds-self.elapsedTime));
             break;
 					default:
 						console.log("variable is wrong, check doTimerUpdate function");
@@ -148,7 +148,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				}
 				console.log(self);
       	self.timer = SynchronizedStopWatch.instance()
-          .frequency(25).onTick(doTimerUpdate)
+          .frequency(15).onTick(doTimerUpdate)
           .duration(rs.config.roundDurationInSeconds).onComplete(function() {
 						console.log("timer is done");
             rs.trigger("next_round");
@@ -285,7 +285,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						return '<span style="margin:3px;">'+label+'</span>';
 					}
 				},
-				xaxis: { min: 0, max: self.roundDurationInSeconds },
+				xaxis: { min: 0, max: self.timer.getDurationInTicks() / 10 },
 				yaxis: { minTickSize: 1 }
 			};
 			if (self.maxPay) this.statOptions.yaxis.max = self.maxPay;
