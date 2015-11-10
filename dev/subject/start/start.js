@@ -148,12 +148,13 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				}
 				console.log(self);
       	self.timer = SynchronizedStopWatch.instance()
-          .frequency(500).onTick(doTimerUpdate)
+          .frequency(25).onTick(doTimerUpdate)
           .duration(rs.config.roundDurationInSeconds).onComplete(function() {
 						console.log("timer is done");
             rs.trigger("next_round");
           }
 				);
+				self.getDurationInTicks = self.timer.getDurationInTicks();
 				self.timer.start();
 			};
 			rs.on("continue", function() {
