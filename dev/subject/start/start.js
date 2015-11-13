@@ -309,13 +309,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		setupEvents : function (self) {
 			this.lastX = -1; this.lastY = -1; var x;
 			// draws when it sees this
-			$('#playContainer').bind("plothover", function (event, pos, item) {
-				$(this).css('cursor', 'pointer');
-				x = Math.round(pos.x);
-				if (x <= self.minPos) x = self.minPos; else if (x > self.maxPos) x = self.maxPos;
-				self.position.hover[0] = x; self.selectedPosition = x;
-				self.setHover();
-			});
 			$('#playContainer').bind("plotclick", function (event, pos, item) {
 				$(this).css('cursor', 'pointer');
 				var x = Math.round(pos.x); if (x < self.minPos) x = self.minPos; else if (x > self.maxPos) x = self.maxPos;
@@ -420,21 +413,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			this.playData[0].data[0] = [0, 0];
 			this.playData[0].data[1] = [minX, get.payoff(this.beta, this.alpha, all, minX)];
 			this.playData[0].data[2] = [endPoint, 0];
-			this.playData[0].data[3] = [this.maxPos, get.payoff(this.beta, this.alpha, all, this.maxPos)];
-		},
-		setHover : function() {
-			var projections = [].concat(this.position.all),
-				hasSaturation = false;
-			projections[this.subjectID] = this.position.hover;
-			for (i in projections) {
-				projections[i][1] = get.payoff(this.beta, this.alpha, projections, projections[i][0]);
-				if (projections[i][1] === 0) hasSaturation = true;
-			}
-			var selected = [this.position.hover[0], get.payoff(this.beta, this.alpha, projections, this.position.hover[0])];
-			if (this.saturateAtZero && hasSaturation)
-				projections.push([get.endPoint(this.beta, this.alpha, projections, this.maxPos), 0]);
-			this.playPlot = $.plot($('#playContainer'), this.playData, this.playOptions);
-			this.playData[3].data = [this.position.yours, selected];
 			this.playData[0].data[3] = [this.maxPos, get.payoff(this.beta, this.alpha, all, this.maxPos)];
 		},
 		setAutomation : function (tick) { var self = this;
