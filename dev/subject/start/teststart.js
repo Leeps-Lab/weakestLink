@@ -62,9 +62,9 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			penalty: 0
 		};
 		this.playData = [{label: 'Curve', data: [], points: { show: false }, lines: { show: true, color: 'green' }},
-						{label: 'All', data: [], points: { show: true }, lines: { show: false }},
+						{label: 'All', data: [], points: { show: true }, color: 'red', lines: { show: false }},
 						{label: 'Hover', data: [], points: { show: true }},
-						{label: 'Yours', data: [], points: { show: true }, lines: { show: false }}];
+						{label: 'Yours', data: [], color: 'green', points: { show: true }, lines: { show: false }}];
 		this.statData = [{label: 'You', data: [], points: { show: false }, lines: { fill: true, fillColor: 'rgba(0,255,0,0.5)'}},
 						{label: 'Average', data: [], points: { show: false } },
 						{label: 'Top', data: [], points: { show: false } },
@@ -390,6 +390,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				  this.position.yours = this.position.all[i];
 				} else player = 'P'+this.usernames[player];
 
+        // moves targests to position clicked
 				if (this.targetPosition[i]) {
 				  var diff = this.targetPosition[i] - this.position.all[i][0];
 				  var changeRate = rs.config.interpolationRate ? rs.config.interpolationRate / 20.0 : 0.05;
@@ -409,6 +410,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 
 			}
 			if (!(this.position.hover[0])) this.position.hover = [this.position.yours[0], 0];
+      /*
 			var projections = [].concat(this.position.all),
 				hasSaturation = false;
 			projections[this.subjectID] = this.position.hover;
@@ -416,19 +418,19 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				projections[i][1] = get.payoff(this.beta, this.alpha, projections, projections[i][0]);
 				if (projections[i][1] === 0) hasSaturation = true;
 			}
-			var selected = [this.position.hover[0], get.payoff(this.beta, this.alpha, projections, this.position.hover[0])];
+			//[this.position.hover[0], get.payoff(this.beta, this.alpha, projections, this.position.hover[0])];
 			if (this.saturateAtZero && hasSaturation)
 				projections.push([get.endPoint(this.beta, this.alpha, projections, this.maxPos), 0]);
+      */
 			$('body').append('<div id="hoverTip" class="tooltip"></div>');
-			this.showTooltip('hoverTip', axes.xaxis.scale * (selected[0] - this.minPos) + offset.left, axes.yaxis.scale * (axes.yaxis.max - selected[1]) + offset.top, 'set');
-			this.playData[3].data = [this.position.yours, selected];
-			this.playData[2].data = projections.sort(get.compareX);
+			this.playData[3].data = [this.position.yours];
+			this.playData[2].data = null;//projections.sort(get.compareX);
 			this.playData[1].data = this.position.all;
 		},
 		setCurve : function () {
 			var isMin = this.position.yours[0] == get.minX(this.position.all);
 			var all = [].concat(this.position.all).sort(get.compareX);
-			if (isMin) all.shift();
+			//if (isMin) all.shift();
 			var minX = get.minX(all), endPoint = get.endPoint(this.beta, this.alpha, all, this.maxPos);
 			this.playData[0].data[0] = [0, 0];
 			this.playData[0].data[1] = [minX, get.payoff(this.beta, this.alpha, all, minX)];
