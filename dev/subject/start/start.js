@@ -5,6 +5,9 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		minX : function (data) {
 			var m = rs.config.maxPos; for (var i in data) if (data[i][0] < m) m = data[i][0]; return m;
 		},
+		minY : function (data) {
+			var m = 0; for (var i in data) if (data[i][1] < m) m = data[i][1]; return m;
+		},
 		payoff : function (beta, alpha, all, pos) {
 			var payoff = alpha * this.minX(all) + beta * (pos - this.minX(all));
 			if (rs.config.saturateAtZero && payoff < 0) return 0;
@@ -62,9 +65,9 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			penalty: 0
 		};
 		this.playData = [{label: 'Curve', data: [], points: { show: false }, lines: { show: true, color: 'green' }},
-						{label: 'All', data: [], points: { show: true }, lines: { show: false }},
+						{label: 'All', data: [], points: { show: true }, color: 'red', lines: { show: false }},
 						{label: 'Hover', data: [], points: { show: true }},
-						{label: 'Yours', data: [], points: { show: true }, lines: { show: false }}];
+						{label: 'Yours', data: [], color: 'green', points: { show: true }, lines: { show: false }}];
 		this.statData = [{label: 'You', data: [], points: { show: false }, lines: { fill: true, fillColor: 'rgba(0,255,0,0.5)'}},
 						{label: 'Average', data: [], points: { show: false } },
 						{label: 'Top', data: [], points: { show: false } },
@@ -346,17 +349,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				.show().appendTo("body").fadeIn(1000);
 		},
 		loadData : function () {
-			/*
-			this.playData[3].data = [this.position.yours, selected]; // self
-			this.playData[2].data = projections.sort(get.compareX); // red line, dots become grey
-			this.playData[1].data = this.position.all; // all
-			*/
-			/*
-			this.playData[0].data[0] = [0, 0]; // yellow line
-			this.playData[0].data[1] = [minX, get.payoff(this.beta, this.alpha, all, minX)]; // yellow line
-			this.playData[0].data[2] = [endPoint, 0]; // second part of yellow line
-			this.playData[0].data[3] = [this.maxPos, get.payoff(this.beta, this.alpha, all, this.maxPos)];
-			*/
 			// shows up on screen
 			this.playPlot = $.plot($('#playContainer'), this.playData, this.playOptions);
 			this.statPlot = $.plot($('#statContainer'), this.statData, this.statOptions);
@@ -371,7 +363,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			}
 			this.payoffRate.penalty = get.penalty(this.beta, this.position.all, this.position.yours[0]);
 			var penalty = this.beta / this.minBeta;// = -this.beta * ((this.position.yours[0] - get.minX(this.position.all)) / (2 * (this.maxPos - this.minPos)));
-			var scale = this.frameRate * this.roundDurationInSeconds;
+			var scale = this.getDurationInTicks;
 			$('#currScore').html('Earning Rate:<br>'+(this.payoffRate.yours / scale).toFixed(3));
 			this.totalScore += (this.payoffRate.yours / scale);
 			$('#earnings').html('Earnings:<br>'+this.totalScore.toFixed(3));
@@ -390,6 +382,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				  this.position.yours = this.position.all[i];
 				} else player = 'P'+this.usernames[player];
 
+        // moves targests to position clicked
 				if (this.targetPosition[i]) {
 				  var diff = this.targetPosition[i] - this.position.all[i][0];
 				  var changeRate = rs.config.interpolationRate ? rs.config.interpolationRate / 20.0 : 0.05;
@@ -409,31 +402,33 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 
 			}
 			if (!(this.position.hover[0])) this.position.hover = [this.position.yours[0], 0];
-			var projections = [].concat(this.position.all),
-				hasSaturation = false;
-			projections[this.subjectID] = this.position.hover;
-			for (i in projections) {
-				projections[i][1] = get.payoff(this.beta, this.alpha, projections, projections[i][0]);
-				if (projections[i][1] === 0) hasSaturation = true;
-			}
-			var selected = [this.position.hover[0], get.payoff(this.beta, this.alpha, projections, this.position.hover[0])];
-			if (this.saturateAtZero && hasSaturation)
-				projections.push([get.endPoint(this.beta, this.alpha, projections, this.maxPos), 0]);
 			$('body').append('<div id="hoverTip" class="tooltip"></div>');
-			this.showTooltip('hoverTip', axes.xaxis.scale * (selected[0] - this.minPos) + offset.left, axes.yaxis.scale * (axes.yaxis.max - selected[1]) + offset.top, 'set');
-			this.playData[3].data = [this.position.yours, selected];
-			this.playData[2].data = projections.sort(get.compareX);
+			this.playData[3].data = [this.position.yours];
+			this.playData[2].data = null;//projections.sort(get.compareX);
+			if (!rs.config.flotversion) {
+				for (var i in this.position.all) {
+					this.position.all[i][1] = this.position.yours[1];
+				}
+			}
+			console.log(this.position.yours);
 			this.playData[1].data = this.position.all;
 		},
 		setCurve : function () {
 			var isMin = this.position.yours[0] == get.minX(this.position.all);
 			var all = [].concat(this.position.all).sort(get.compareX);
-			if (isMin) all.shift();
+			//if (isMin) all.shift();
 			var minX = get.minX(all), endPoint = get.endPoint(this.beta, this.alpha, all, this.maxPos);
 			this.playData[0].data[0] = [0, 0];
 			this.playData[0].data[1] = [minX, get.payoff(this.beta, this.alpha, all, minX)];
 			this.playData[0].data[2] = [endPoint, 0];
 			this.playData[0].data[3] = [this.maxPos, get.payoff(this.beta, this.alpha, all, this.maxPos)];
+
+			var minY = this.playData[0].data[3][1];
+			if (minY < this.minPay) {
+				this.playOptions.yaxis.min = minY - 1;
+			} else {
+				this.playOptions.yaxis.min = this.minPay;
+			}
 		},
 		setAutomation : function (tick) { var self = this;
 			var aa = this.alphaAutomation, ba = this.betaAutomation, node = tick;
