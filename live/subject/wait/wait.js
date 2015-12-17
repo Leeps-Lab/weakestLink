@@ -40,10 +40,10 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", fun
 
 		$('.answer').keyup(function (e) {
 			var index = this.id.split('a')[1];
-			if (solution[index] == parseFloat(this.value) && this.value != '') {
+			if (solution[index] == parseFloat(this.value) && (this.value != '')) {
 				$('#m'+index).text('correct');
 				correct[index] = true;
-			} else {
+			} else if (this.value != "-") {
 				$('#m'+index).text('incorrect');
 			}
 			for (var i = 0; i < 4; i++)	if (!correct[i]) return;

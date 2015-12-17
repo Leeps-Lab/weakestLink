@@ -35,7 +35,7 @@
 				<div class="navbar-right">
 					<div class="navbar-text">Period: <span>{{$root.period}}</span></div>
 					<div class="navbar-text">Round: <span>{{round}} / {{rounds}}</span></div>
-					<div class="navbar-text" id="timer">Time: <span>{{timeRemaining | timeString}}</span></div>
+					<div class="navbar-text" id="timer">Time: <span>{{timeKeeper.getDurationInTicks - timeKeeper.ticknum}}</span></div>
 				</div>
 			</div>
 		</div>
@@ -51,7 +51,7 @@
 					<td><label>Penalty:<br><div class="meter"><span id="penalty" style="width: 0%"></span></div></label><td>
       			</tr>
       		</table>
-      		<div id="playContainer" class="plot" style="width:400px; height:500px;"></div>
+    			<div id="playContainer" class="plot" style="width:400px; height:500px;"></div>
       		<div id="statContainer" class="plot" style="width:400px; height:500px;"></div>
   			</div>
 			</div>
