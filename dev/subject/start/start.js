@@ -76,7 +76,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		this.statOptions = {};
 		this.alpha = -1; this.beta = 1;
 		this.alphaAutomation = []; this.betaAutomation = [];
-		this.totalScore = 0;
+		this.totalScore = rs.config.startingmoney ? rs.config.startingmoney : 0;
 		this.setReceive();
 	}
 
@@ -364,9 +364,9 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			this.payoffRate.penalty = get.penalty(this.beta, this.position.all, this.position.yours[0]);
 			var penalty = this.beta / this.minBeta;// = -this.beta * ((this.position.yours[0] - get.minX(this.position.all)) / (2 * (this.maxPos - this.minPos)));
 			var scale = this.getDurationInTicks;
-			$('#currScore').html('Earning Rate:<br>'+(this.payoffRate.yours / scale).toFixed(3));
+			$('#currScore').html('Payout Rate:<br>'+(this.payoffRate.yours / scale).toFixed(3));
 			this.totalScore += (this.payoffRate.yours / scale);
-			$('#earnings').html('Earnings:<br>'+this.totalScore.toFixed(3));
+			$('#payout').html('Payout:<br>'+this.totalScore.toFixed(3));
 			$('#penalty').css('width', penalty.toFixed(2) * 100 + '%');
 		},
 		setPositions : function () {
