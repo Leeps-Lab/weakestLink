@@ -32,15 +32,47 @@
 			</div>
 		</div>
 
-		<div class="container" style="margin-top: 45px;">
+		<div id="questionnaire" class="container">
+			<div class="row">
+				<div class="col-lg-12 instruction" style="margin-top: 50px; padding:50px;">
+					<form>
+						<p> You are free to answer any and all of the following questions :</p>
+						<fieldset>
+							<span class="question">Age: </span>
+							<input class="answer" id="age" type="text" value="" />
+							<span class="msg" id="m0"></span>
+						</fieldset>
+						<fieldset>
+							<span class="question">Student: </span>
+							<select class="answer" id="student">
+								<option>No Answer</option>
+								<option>Yes</option>
+								<option>No</option>
+							</select>
+							<span class="msg" id="m1"></span>
+						</fieldset>
+						<fieldset>
+							<span class="question">Field of Study: </span>
+							<input class="answer" id="fieldofstudy" type="text" value="" />
+							<span class="msg" id="m2"></span>
+						</fieldset>
+						<fieldset>
+							<span class="question">Gender: </span>
+							<input class="answer" id="gender" type="text" value=""/>
+							<span class="msg" id="m3"></span>
+						</fieldset>
+						<button class="btn btn-success" ng-click="submitquestionnaire()">Submit</button>
+					</form>
+ 				</div>
+			</div>
+		</div>
+
+		<div id="payoff" class="container" style="margin-top: 45px;" hidden>
 			<table class="table table-bordered table-condensed">
 				<thead>
 					<tr><th>Period</th><th>Points</th></tr>
 				</thead>
 				<tbody id="results">
-					<tr ng-repeat="points in pointsByPeriod track by $index">
-						<td>{{ $index + 1 }}</td><td>{{ points * conversionRate | number:2 }}</td>
-					</tr>
 					<tr class="warning">
 						<td>Average:</td><td>{{ ($root.totalPoints / ($root.period - 1) || 0) | number:2 }}</td>
 					</tr>

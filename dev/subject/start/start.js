@@ -270,7 +270,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			this.playOptions = {
 				series: { lines: { show: true }, points: { show: true } },
 				legend: { show: false },
-				xaxis: { min: self.minPos, max: self.maxPos },
+				xaxis: { axisLabel: 'Decision', min: self.minPos, max: self.maxPos },
 				yaxis: { minTickSize: 1 },
 				grid: { clickable: true, hoverable: true, autoHighlight: true, moutieActiveRadius: 15 }
 			};
@@ -288,7 +288,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						return '<span style="margin:3px;">'+label+'</span>';
 					}
 				},
-				xaxis: { min: 0, max: self.timer.getDurationInTicks() / 10 },
+				xaxis: { axisLabel: 'Time', min: 0, max: self.timer.getDurationInTicks() / 10 },
 				yaxis: { minTickSize: 1 }
 			};
 			if (self.maxPay) this.statOptions.yaxis.max = self.maxPay;
