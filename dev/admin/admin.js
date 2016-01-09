@@ -1,4 +1,6 @@
 Redwood.controller("AdminCtrl", ["$rootScope", "$scope", "Admin", function($rootScope, $scope, ra) {
+  $scope.subjects = [];
+  $scope.payouts = false;
   var Display = { //Display controller
 
 		initialize: function() {
@@ -92,6 +94,9 @@ Redwood.controller("AdminCtrl", ["$rootScope", "$scope", "Admin", function($root
 								$("<td>").text(0).after(
 									$("<td>").text(""))))));
 				}
+				$scope.subjects.push({
+					userid: user
+				});
 			});
 
 			ra.on_set_config(function(config) { //Display the config file
@@ -152,5 +157,29 @@ Redwood.controller("AdminCtrl", ["$rootScope", "$scope", "Admin", function($root
 	ra.on("resume", function() {
 		ra.resume();
 	});
+
+
+	var getlocation = function(sender) {
+		var location = $.map($scope.subjects, function(obj, index) {
+			if (obj.userid === sender) {
+				return index;
+			}
+		});
+		return location[0];
+	};
+	ra.recv("sendfinalearnings", function(sender, value) {
+		// stores information
+		var location = getlocation(sender);
+		$scope.subjects[location].average = value.average;
+		$scope.subjects[location].conversionRate = value.conversionRate;
+		$scope.subjects[location].showUpFee = value.showUpFee;
+		$scope.subjects[location].total = value.total;
+		// shows the information on the admin page
+	});
+
+  $scope.subjectPayouts = function() {
+    $scope.payouts = !$scope.payouts;
+    $("#payoutstatus").text($("#payoutstatus").text() === "Show Payouts" ? "Hide Payouts" : "Show Payouts");
+  }
 
 }]);

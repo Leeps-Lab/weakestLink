@@ -44,7 +44,7 @@
 						<div class="span3">
 							<div class="well sidebar-nav">
 								<ul class="nav nav-list">
-									<li><a href="admin/payouts" target="_blank">View Payouts</a></li>
+									<li id="payoutstatus" ng-click="subjectPayouts();">Show Payouts</li>
 									<li><a id="archive" href="#">Archive Session</a></li>
 									<li><a id="download" href="admin/download">Download Data</a></li>
 								</ul>
@@ -80,6 +80,24 @@
 					</div>
 				</div>
 			</div>
+      <div class="row" ng-show="payouts">
+        <table class="table table-striped table-hover table-condensed">
+          <tr>
+            <th>ID</th>
+            <th>Average</th>
+            <th>Conversion Rate</th>
+            <th>Show-Up Fee</th>
+            <th>Total</th>
+          </tr>
+          <tr ng-repeat="subject in subjects | orderBy : 'userid'">
+            <td ng-bind="subject.userid"></td>
+            <td ng-bind="subject.average | number:2"></td>
+            <td ng-bind="subject.conversionRate | number:2"></td>
+            <td ng-bind="subject.showUpFee | number:2"></td>
+            <td ng-bind="subject.total | number:2"></td>
+          </tr>
+        </table>
+      </div>
 			<div class="row">
 				<div class="span12">
 					<hr/>
