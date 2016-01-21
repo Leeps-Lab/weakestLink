@@ -126,8 +126,11 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						if (rs.config.showYourPayoff) {
 							var select = self.payoffRate.yours > 0 ? [0,3] : [3,0];
 							// where the payoff data is located
-							self.statData[select[0]].data.push([self.elapsedTime, self.payoffRate.yours]);
-							self.statData[select[1]].data.push([self.elapsedTime, 0]);
+							self.statData[select[0]].data.push([self.ticknum/15, self.payoffRate.yours]);
+							if (self.timer.getDurationInTicks() < self.statData[select[0]].data.length) {
+								self.statOptions.xaxis.max++;
+							}
+							self.statData[select[1]].data.push([self.ticknum/15, 0]);
 						}
 						// where the payoff data is located
 						if (rs.config.showAveragePayoff) self.statData[1].data.push([self.elapsedTime, self.payoffRate.average]);
@@ -288,7 +291,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						return '<span style="margin:3px;">'+label+'</span>';
 					}
 				},
-				xaxis: { axisLabel: 'Time', min: 0, max: self.timer.getDurationInTicks() / 10 },
+				xaxis: { axisLabel: 'Time', min: 0, max: self.timer.getDurationInTicks() / 15 },
 				yaxis: { minTickSize: 1 }
 			};
 			if (self.maxPay) this.statOptions.yaxis.max = self.maxPay;
@@ -445,6 +448,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			}
 			for (i = ba.length-1; i >= 0; i--) {
 				if (node >= ba[i][1]) {
+					rs.trigger('betachange', {changetype: ba[i][0], currentbeta: this.beta, ba1: ba[i][1], ba2: ba[i][2]});
 					if (ba[i][0] == 'linear' && ba[i+1]) {
 						this.beta = ba[i][2] + (ba[i+1][2] - ba[i][2]) * (node - ba[i][1]) / (ba[i+1][1] - ba[i][1]);
 						break;

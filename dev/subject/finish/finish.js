@@ -6,8 +6,8 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", fun
 			$("#payoff").show();
 		}
 
-		$scope.conversionRate = rs.configs[0].conversionRate ? rs.configs[0].conversionRate : 1;
-	  $scope.showUpFee = rs.configs[0].showUpFee ? rs.configs[0].showUpFee : 7;
+		$scope.conversionRate = !isNaN(rs.configs[0].conversionRate) ? rs.configs[0].conversionRate : 1;
+	  $scope.showUpFee = !isNaN(rs.configs[0].showUpFee) ? rs.configs[0].showUpFee : 7;
 
     rs.trigger("sendfinalearnings", {
       average : $rootScope.totalPoints / ($rootScope.period - 1) || 0,
