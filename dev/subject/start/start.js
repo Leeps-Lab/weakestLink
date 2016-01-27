@@ -144,6 +144,10 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 
 						// what does this do?
 						self.setAutomation(self.ticknum);
+
+						rs.trigger('tickchange', {position: self.position.yours[0], payoff: self.payoffRate.yours, beta: self.beta});
+						console.log("position : " + self.position.yours[0] + ", payoff : " + self.payoffRate.yours + ", beta : " + self.beta);
+
 						self.loadData();
             break;
 					default:
@@ -454,7 +458,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			}
 			for (i = ba.length-1; i >= 0; i--) {
 				if (node >= ba[i][1]) {
-					rs.trigger('betachange', {changetype: ba[i][0], currentbeta: this.beta, ba1: ba[i][1], ba2: ba[i][2]});
 					if (ba[i][0] == 'linear' && ba[i+1]) {
 						this.beta = ba[i][2] + (ba[i+1][2] - ba[i][2]) * (node - ba[i][1]) / (ba[i+1][1] - ba[i][1]);
 						break;
