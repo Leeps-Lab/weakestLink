@@ -102,6 +102,12 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				self.playData[2].points.show = false;
 			}
 			self.setGroup();
+			for (var i = 0; i < self.betaAutomation.length; i++) {
+				console.log("before : " + self.betaAutomation);
+				self.betaAutomation[i][1] = self.betaAutomation[i][1] * 15;
+				console.log("type : " + typeof self.betaAutomation);
+				console.log("after : " + self.betaAutomation);
+			}
 
 			// Ticks
 			var doTimerUpdate = function() {
