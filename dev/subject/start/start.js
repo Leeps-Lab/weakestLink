@@ -143,7 +143,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						if (rs.config.showTopPayoff) self.statData[2].data.push([self.elapsedTime, self.payoffRate.top]);
 
 						// what does this do?
-						self.setAutomation(self.elapsedTime);
+						self.setAutomation(self.ticknum);
 						self.loadData();
             break;
 					default:
