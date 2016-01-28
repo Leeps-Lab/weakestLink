@@ -120,7 +120,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				$scope.alreadymoved = false;
 				switch (self.state) {
 					case 'INIT':
-						//self.setGroup();
+						self.setGroup();
 						self.setupPlots();
 						self.state = 'IDLE';
 						break;
@@ -250,8 +250,8 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			for (var group = 0; group < this.grouping.length; group++) {
 				for (var i = 0; i < this.grouping[group].length; i++) {
 					if (this.grouping[group][i] == this.subjectID) {
-						this.group = group; break;
 						this.groupposition = i;
+						this.group = group; break;
 					}
 				}
 			}
@@ -267,9 +267,14 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		},
 		setupInitialValue : function () {
 			var init_positions = rs.config.subjectPositions;
+			console.log(init_positions);
 			var init_x;
 			if (!init_positions) init_x = Math.round(this.minPos + Math.random() * (this.maxPos - this.minPos));
-			else init_x = init_positions[this.groupposition];
+			else {
+				init_x = init_positions[this.groupposition];
+				console.log(this.groupposition);
+				console.log(init_positions[this.groupposition]);
+			}
 			this.selectedPosition = init_x;
 			rs.trigger('init', {group: this.group, subjectID: this.subjectID, point: [init_x, get.payoff(this.beta, this.alpha, this.position.all, init_x)]});
 			if (!rs.config.showYourPayoff) delete this.statData[0].label;
