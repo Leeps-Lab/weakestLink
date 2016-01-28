@@ -103,10 +103,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			}
 			self.setGroup();
 			for (var i = 0; i < self.betaAutomation.length; i++) {
-				console.log("before : " + self.betaAutomation);
 				self.betaAutomation[i][1] = self.betaAutomation[i][1] * 15;
-				console.log("type : " + typeof self.betaAutomation);
-				console.log("after : " + self.betaAutomation);
 			}
 
 			// Ticks
@@ -146,7 +143,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						self.setAutomation(self.ticknum);
 
 						rs.trigger('tickchange', {position: self.position.yours[0], payoff: self.payoffRate.yours, beta: self.beta});
-						console.log("position : " + self.position.yours[0] + ", payoff : " + self.payoffRate.yours + ", beta : " + self.beta);
 
 						self.loadData();
             break;
@@ -162,7 +158,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				if (self.timer) {
 					self.timer = false;
 				}
-				console.log(self);
       	self.timer = SynchronizedStopWatch.instance()
           .frequency(15).onTick(doTimerUpdate)
           .duration(rs.config.roundDurationInSeconds).onComplete(function() {
@@ -207,7 +202,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				}*/
 				self.targetPosition[m.subjectID] = m.pos;
 				self.setPositions(); self.setCurve(); self.loadData();
-				console.log('someone clicked');
 			});
 			rs.recv('init', function (sender, m) {
 				if (m.group != self.group) return;
@@ -255,7 +249,10 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		setGroup : function () {
 			for (var group = 0; group < this.grouping.length; group++) {
 				for (var i = 0; i < this.grouping[group].length; i++) {
-					if (this.grouping[group][i] == this.subjectID) { this.group = group; break; }
+					if (this.grouping[group][i] == this.subjectID) {
+						this.group = group; break;
+						this.groupposition = i;
+					}
 				}
 			}
 		},
@@ -272,7 +269,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			var init_positions = rs.config.subjectPositions;
 			var init_x;
 			if (!init_positions) init_x = Math.round(this.minPos + Math.random() * (this.maxPos - this.minPos));
-			else init_x = init_positions[this.group][(this.subjectID-1)%this.grouping[this.group].length];
+			else init_x = init_positions[this.groupposition];
 			this.selectedPosition = init_x;
 			rs.trigger('init', {group: this.group, subjectID: this.subjectID, point: [init_x, get.payoff(this.beta, this.alpha, this.position.all, init_x)]});
 			if (!rs.config.showYourPayoff) delete this.statData[0].label;
@@ -423,7 +420,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 					this.position.all[i][1] = this.position.yours[1];
 				}
 			}
-			console.log(this.position.yours);
 			this.playData[1].data = this.position.all;
 		},
 		setCurve : function () {
