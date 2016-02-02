@@ -1,5 +1,6 @@
 Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "SynchronizedStopWatch", function($rootScope, $scope, rs, SynchronizedStopWatch) {
 
+	$scope.frequency = 10;
 	function Get () {}
 	Get.prototype = {
 		minX : function (data) {
@@ -103,7 +104,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			}
 			self.setGroup();
 			for (var i = 0; i < self.betaAutomation.length; i++) {
-				self.betaAutomation[i][1] = self.betaAutomation[i][1] * 15;
+				self.betaAutomation[i][1] = self.betaAutomation[i][1] * $scope.frequency;
 			}
 
 			// Ticks
@@ -129,11 +130,11 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						if (rs.config.showYourPayoff) {
 							var select = self.payoffRate.yours > 0 ? [0,3] : [3,0];
 							// where the payoff data is located
-							self.statData[select[0]].data.push([self.ticknum/15, self.payoffRate.yours]);
+							self.statData[select[0]].data.push([self.ticknum/$scope.frequency, self.payoffRate.yours]);
 							if (self.timer.getDurationInTicks() < self.statData[select[0]].data.length) {
 								self.statOptions.xaxis.max++;
 							}
-							self.statData[select[1]].data.push([self.ticknum/15, 0]);
+							self.statData[select[1]].data.push([self.ticknum/$scope.frequency, 0]);
 						}
 						// where the payoff data is located
 						if (rs.config.showAveragePayoff) self.statData[1].data.push([self.elapsedTime, self.payoffRate.average]);
@@ -159,7 +160,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 					self.timer = false;
 				}
       	self.timer = SynchronizedStopWatch.instance()
-          .frequency(15).onTick(doTimerUpdate)
+          .frequency($scope.frequency).onTick(doTimerUpdate)
           .duration(rs.config.roundDurationInSeconds).onComplete(function() {
 						console.log("timer is done");
             rs.trigger("next_round");
@@ -301,7 +302,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						return '<span style="margin:3px;">'+label+'</span>';
 					}
 				},
-				xaxis: { axisLabel: 'Time', min: 0, max: self.timer.getDurationInTicks() / 15 },
+				xaxis: { axisLabel: 'Time', min: 0, max: self.timer.getDurationInTicks() / $scope.frequency },
 				yaxis: { minTickSize: 1 }
 			};
 			if (self.maxPay) this.statOptions.yaxis.max = self.maxPay;
