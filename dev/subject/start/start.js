@@ -1,6 +1,6 @@
 Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "SynchronizedStopWatch", function($rootScope, $scope, rs, SynchronizedStopWatch) {
 
-	$scope.frequency = 10;
+	$scope.frequency = 7;
 	function Get () {}
 	Get.prototype = {
 		minX : function (data) {
@@ -54,24 +54,18 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		// Graph
 		this.position = {
 			yours: [], // playData[3], 3
-			hover: [], // playData[2], 2
 			all: [], // playData[1], 1
 			curve: [] // playData[0], 0
 		};
 		this.targetPosition = [];
 		this.payoffRate = {
 			yours: 1,
-			average: 1,
-			top: 1,
 			penalty: 0
 		};
 		this.playData = [{label: 'Curve', data: [], points: { show: false }, lines: { show: true, color: 'green' }},
 						{label: 'All', data: [], points: { show: true }, color: 'red', lines: { show: false }},
-						{label: 'Hover', data: [], points: { show: true }},
 						{label: 'Yours', data: [], color: 'green', points: { show: true }, lines: { show: false }}];
 		this.statData = [{label: 'You', data: [], points: { show: false }, lines: { fill: true, fillColor: 'rgba(0,255,0,0.5)'}},
-						{label: 'Average', data: [], points: { show: false } },
-						{label: 'Top', data: [], points: { show: false } },
 						{data: [], points: { show: false }, lines: { fill: true, fillColor: 'rgba(255,0,0,0.5)'}}];
 		this.playOptions = {};
 		this.statOptions = {};
@@ -87,20 +81,18 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			self.roundDurationInSeconds = rs.config.roundDurationInSeconds ? rs.config.roundDurationInSeconds : 60;
 			self.alpha = 1; self.beta = -1;
 			self.minPos = !isNaN(rs.config.minPos) ? rs.config.minPos : 0;
-			// set maxPos through Ticks rather than seconds
 			self.maxPos = !isNaN(rs.config.maxPos) ? rs.config.maxPos : 10;
 			self.minPay = rs.config.minPay; self.maxPay = rs.config.maxPay;
 			self.alphaAutomation = rs.config.alphaAutomation ? JSON.parse(rs.config.alphaAutomation.replace(/'/g,'"')) : [];
 			self.betaAutomation = rs.config.betaAutomation ? JSON.parse(rs.config.betaAutomation.replace(/'/g,'"')) : [];
 			self.minBeta = rs.config.minBeta ? rs.config.minBeta : -5;
 			$scope.rounds = $scope.config.rounds || 1; $scope.round = 0;
-			self.subjectID = rs.user_id; self.frameRate = 4;
+			self.subjectID = rs.user_id;
 			self.hideLabel = rs.config.hideLabel;
 			self.grouping = rs.config.grouping;
 			self.saturateAtZero = rs.config.saturateAtZero;
 			if (rs.config.hideOtherPlayers) {
 				self.playData[1].points.show = false;
-				self.playData[2].points.show = false;
 			}
 			self.setGroup();
 			for (var i = 0; i < self.betaAutomation.length; i++) {
@@ -109,16 +101,9 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 
 			// Ticks
 			var doTimerUpdate = function() {
-				console.log("time to update");
-			  var now = new Date().getTime();
-			  var delta = (now - self.lastFrameTime) / 1000;
-			  self.lastFrameTime = now;
-			  self.elapsedTime += delta;
-			  $scope.timeRemaining = $scope.timeTotal - self.elapsedTime;
 				self.ticknum++;
 				if (rs.config.hideTimer) $('#timer').hide();
 
-				$scope.alreadymoved = false;
 				switch (self.state) {
 					case 'INIT':
 						self.setGroup();
@@ -128,24 +113,18 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 					case 'IDLE':
 						self.setPayoffRates();
 						if (rs.config.showYourPayoff) {
-							var select = self.payoffRate.yours > 0 ? [0,3] : [3,0];
+							var select = self.payoffRate.yours > 0 ? [0,1] : [1,0];
 							// where the payoff data is located
 							self.statData[select[0]].data.push([self.ticknum/$scope.frequency, self.payoffRate.yours]);
-							if (self.timer.getDurationInTicks() < self.statData[select[0]].data.length) {
-								self.statOptions.xaxis.max++;
-							}
 							self.statData[select[1]].data.push([self.ticknum/$scope.frequency, 0]);
 						}
-						// where the payoff data is located
-						if (rs.config.showAveragePayoff) self.statData[1].data.push([self.elapsedTime, self.payoffRate.average]);
-						if (rs.config.showTopPayoff) self.statData[2].data.push([self.elapsedTime, self.payoffRate.top]);
 
 						// what does this do?
 						self.setAutomation(self.ticknum);
 
 						rs.trigger('tickchange', {position: self.position.yours[0], payoff: self.payoffRate.yours, beta: self.beta});
 
-						self.loadData();
+						self.setPositions(); self.setCurve(); self.loadData();
             break;
 					default:
 						console.log("variable is wrong, check doTimerUpdate function");
@@ -153,16 +132,12 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				}
 			};
 			var checkTime = function() {
-		    self.lastFrameTime = new Date().getTime();
-		    self.elapsedTime = 0;
-				$scope.timeRemaining = 0;
 				if (self.timer) {
 					self.timer = false;
 				}
       	self.timer = SynchronizedStopWatch.instance()
           .frequency($scope.frequency).onTick(doTimerUpdate)
           .duration(rs.config.roundDurationInSeconds).onComplete(function() {
-						console.log("timer is done");
             rs.trigger("next_round");
           }
 				);
@@ -189,20 +164,15 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 
 			rs.on('beta', function (m) {
 				$('#beta').html('Beta = '+m.beta);
-				self.beta = m.beta; self.setPositions(); self.setCurve(); self.loadData();
+				self.beta = m.beta;
 			});
 			rs.on('alpha', function (m) {
 				$('#alpha').html('Alpha = '+m.alpha);
-				self.alpha = m.alpha; self.setPositions(); self.setCurve(); self.loadData();
+				self.alpha = m.alpha;
 			});
 			rs.on('position', function (m) {
 				if (m.group != self.group) return;
-				/*self.position.all[m.subjectID] = [m.pos, get.payoff(self.beta, self.alpha, self.position.all, m.pos)];
-				if (m.subjectID == self.subjectID) {
-					self.position.yours = self.position.all[m.subjectID];
-				}*/
 				self.targetPosition[m.subjectID] = m.pos;
-				self.setPositions(); self.setCurve(); self.loadData();
 			});
 			rs.recv('init', function (sender, m) {
 				if (m.group != self.group) return;
@@ -219,20 +189,15 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			});
 			rs.recv('beta', function (sender, m) {
 				$('#beta').html('Beta = '+m.beta);
-				self.beta = m.beta; self.setPositions(); self.setCurve(); self.loadData();
+				self.beta = m.beta;
 			});
 			rs.recv('alpha', function (sender, m) {
 				$('#alpha').html('Alpha = '+m.alpha);
-				self.alpha = m.alpha; self.setPositions(); self.setCurve(); self.loadData();
+				self.alpha = m.alpha;
 			});
 			rs.recv('position', function (sender, m) {
 				if (m.group != self.group) return;
-				/*self.position.all[m.subjectID] = [m.pos, get.payoff(self.beta, self.alpha, self.position.all, m.pos)];
-					if (m.subjectID == self.subjectID) {
-					self.position.yours = self.position.all[m.subjectID];
-				}*/
 				self.targetPosition[m.subjectID] = m.pos;
-				self.setPositions(); self.setCurve(); self.loadData();
 			});
 			rs.on('changeNames', function (m) {
 				if (m.group != self.group) return;
@@ -265,7 +230,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			this.playPlot.setupGrid();
 			this.statPlot.setupGrid();
 			this.setupEvents(this);
-			this.setRedrawPlots(this);
 		},
 		setupInitialValue : function () {
 			var init_positions = rs.config.subjectPositions;
@@ -277,8 +241,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			this.selectedPosition = init_x;
 			rs.trigger('init', {group: this.group, subjectID: this.subjectID, point: [init_x, get.payoff(this.beta, this.alpha, this.position.all, init_x)]});
 			if (!rs.config.showYourPayoff) delete this.statData[0].label;
-			if (!rs.config.showAveragePayoff) delete this.statData[1].label;
-			if (!rs.config.showTopPayoff) delete this.statData[2].label;
 		},
 		setOptions : function (self) {
 			this.playOptions = {
@@ -308,15 +270,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			if (self.maxPay) this.statOptions.yaxis.max = self.maxPay;
 			if (self.minPay) this.statOptions.yaxis.min = self.minPay;
 		},
-		setRedrawPlots : function (self) {
-			//self.timer.frequency(200).onTick(self.drawPlots)
-			/*
-			setInterval(function () {
-				self.playPlot.draw();
-				self.statPlot.draw();
-			}, 200);
-			*/
-		},
 		drawPlots : function() {
 			if (!this.playPlot || !this.statPlot) {
 				this.playPlot.draw();
@@ -324,28 +277,17 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			}
 		},
 		setupEvents : function (self) {
-			this.lastX = -1; this.lastY = -1; var x;
-			// draws when it sees this
-			/*
-			$('#playContainer').bind("plothover", function (event, pos, item) {
-				$(this).css('cursor', 'pointer');
-				x = Math.round(pos.x);
-				if (x <= self.minPos) x = self.minPos; else if (x > self.maxPos) x = self.maxPos;
-				self.position.hover[0] = x; self.selectedPosition = x;
-				self.setHover();
-			});
-			*/
 			$('#playContainer').bind("plotclick", function (event, pos, item) {
 				$(this).css('cursor', 'pointer');
-				var x = Math.round(pos.x); if (x < self.minPos) x = self.minPos; else if (x > self.maxPos) x = self.maxPos;
-				rs.trigger('position', {group: self.group, subjectID: self.subjectID, pos: x, alpha: self.alpha, beta: self.beta, time: $scope.timeTotal - $scope.timeRemaining});
+				var x = Math.round(pos.x);
+				if (x < self.minPos) x = self.minPos;
+				else if (x > self.maxPos) x = self.maxPos;
+				rs.trigger('position', {group: self.group, subjectID: self.subjectID, pos: x, alpha: self.alpha, beta: self.beta});
 			});
 			window.onkeydown = function (e) {
-				if (e.which == 37 || e.which == 39 || e.which == 13) self.position.hover = [];
 				if (e.which == 37 && self.selectedPosition > self.minPos) self.selectedPosition--;
 				else if (e.which == 39 && self.selectedPosition < self.maxPos) self.selectedPosition++;
-				else if (e.which == 13) rs.trigger('position', {group: self.group, subjectID: self.subjectID, pos: self.selectedPosition, beta: self.beta, time: $scope.timeTotal - $scope.timeRemaining});
-				self.position.hover[0] = self.selectedPosition;
+				else if (e.which == 13) rs.trigger('position', {group: self.group, subjectID: self.subjectID, pos: self.selectedPosition, beta: self.beta});
 			};
 		},
 		showTooltip : function (tooltip, x, y, msg) {
@@ -363,23 +305,19 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				.show().appendTo("body").fadeIn(1000);
 		},
 		loadData : function () {
-			// shows up on screen
 			this.playPlot = $.plot($('#playContainer'), this.playData, this.playOptions);
 			this.statPlot = $.plot($('#statContainer'), this.statData, this.statOptions);
 		},
 		setPayoffRates : function () {
 			this.payoffRate.yours = get.payoff(this.beta, this.alpha, this.position.all, this.position.yours[0]);
-			this.payoffRate.average = get.average(this.beta, this.alpha, this.position.all);
-			this.payoffRate.top = get.top(this.beta, this.alpha, this.position.all);
 			if (this.saturateAtZero) {
 				for (var type in this.payoffRate)
 					if (this.payoffRate[type] < 0) this.payoffRate[type] = 0;
 			}
 			this.payoffRate.penalty = get.penalty(this.beta, this.position.all, this.position.yours[0]);
 			var penalty = this.beta / this.minBeta;// = -this.beta * ((this.position.yours[0] - get.minX(this.position.all)) / (2 * (this.maxPos - this.minPos)));
-			var scale = this.getDurationInTicks;
-			$('#currScore').html('Payout Rate:<br>'+(this.payoffRate.yours / scale).toFixed(3));
-			this.totalScore += (this.payoffRate.yours / scale);
+			$('#currScore').html('Payout Rate:<br>'+(this.payoffRate.yours / this.getDurationInTicks).toFixed(3));
+			this.totalScore += (this.payoffRate.yours / this.getDurationInTicks);
 			$('#payout').html('Payout:<br>'+this.totalScore.toFixed(3));
 			$('#penalty').css('width', penalty.toFixed(2) * 100 + '%');
 		},
@@ -394,9 +332,10 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				if (player == this.subjectID) {
 				  player = 'You';
 				  this.position.yours = this.position.all[i];
+					this.position.all[i][1] = get.payoff(this.beta, this.alpha, this.position.all, this.position.all[i][0]);
 				} else player = 'P'+this.usernames[player];
 
-        // moves targests to position clicked
+        // moves targets to position clicked
 				if (this.targetPosition[i]) {
 				  var diff = this.targetPosition[i] - this.position.all[i][0];
 				  var changeRate = rs.config.interpolationRate ? rs.config.interpolationRate / 20.0 : 0.05;
@@ -410,15 +349,12 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			  else
 			    this.targetPosition[i] = this.position.all[i][0];
 
-				this.position.all[i][1] = get.payoff(this.beta, this.alpha, this.position.all, this.position.all[i][0]);
 				if (occupiedX[this.position.all[i][0]]) occupiedX[this.position.all[i][0]] += 30; else occupiedX[this.position.all[i][0]] = 50;
 				this.showTooltip(i, axes.xaxis.scale * (this.position.all[i][0] - this.minPos) + offset.left, axes.yaxis.scale * (axes.yaxis.max - this.position.all[i][1]) + offset.top + occupiedX[this.position.all[i][0]], player);
 
 			}
-			if (!(this.position.hover[0])) this.position.hover = [this.position.yours[0], 0];
 			$('body').append('<div id="hoverTip" class="tooltip"></div>');
-			this.playData[3].data = [this.position.yours];
-			this.playData[2].data = null;//projections.sort(get.compareX);
+			this.playData[2].data = [this.position.yours];
 			if (!rs.config.flotversion) {
 				for (var i in this.position.all) {
 					this.position.all[i][1] = this.position.yours[1];
@@ -429,7 +365,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		setCurve : function () {
 			var isMin = this.position.yours[0] == get.minX(this.position.all);
 			var all = [].concat(this.position.all).sort(get.compareX);
-			//if (isMin) all.shift();
 			var minX = get.minX(all), endPoint = get.endPoint(this.beta, this.alpha, all, this.maxPos);
 			this.playData[0].data[0] = [0, 0];
 			this.playData[0].data[1] = [minX, get.payoff(this.beta, this.alpha, all, minX)];
@@ -472,7 +407,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 	};
 
 	rs.on_load(function() {
-		$scope.alreadymoved = false;
 		$scope.timeKeeper = new TimeKeeper();
 		rs.trigger("next_round");
 	});
