@@ -1,6 +1,5 @@
 Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "SynchronizedStopWatch", function($rootScope, $scope, rs, SynchronizedStopWatch) {
 
-	$scope.frequency = 7;
 	function Get () {}
 	Get.prototype = {
 		minX : function (data) {
@@ -65,8 +64,8 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		this.playData = [{label: 'Curve', data: [], points: { show: false }, lines: { show: true, color: 'green' }},
 						{label: 'All', data: [], points: { show: true }, color: 'red', lines: { show: false }},
 						{label: 'Yours', data: [], color: 'green', points: { show: true }, lines: { show: false }}];
-		this.statData = [{label: 'You', data: [], points: { show: false }, lines: { fill: true, fillColor: 'rgba(0,255,0,0.5)'}},
-						{data: [], points: { show: false }, lines: { fill: true, fillColor: 'rgba(255,0,0,0.5)'}}];
+		this.statData = [{color: 'rgb(0,255,0)', data: [], points: { show: false }, lines: { fill: true, fillColor: 'rgba(0,255,0,0.5)'}},
+						{color: 'rgb(255,0,0)', data: [], points: { show: false }, lines: { fill: true, fillColor: 'rgba(255,0,0,0.5)'}}];
 		this.playOptions = {};
 		this.statOptions = {};
 		this.alpha = -1; this.beta = 1;
@@ -102,7 +101,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			// Ticks
 			var doTimerUpdate = function() {
 				self.ticknum++;
-				if (rs.config.hideTimer) $('#timer').hide();
 
 				switch (self.state) {
 					case 'INIT':
@@ -284,11 +282,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 				else if (x > self.maxPos) x = self.maxPos;
 				rs.trigger('position', {group: self.group, subjectID: self.subjectID, pos: x, alpha: self.alpha, beta: self.beta});
 			});
-			window.onkeydown = function (e) {
-				if (e.which == 37 && self.selectedPosition > self.minPos) self.selectedPosition--;
-				else if (e.which == 39 && self.selectedPosition < self.maxPos) self.selectedPosition++;
-				else if (e.which == 13) rs.trigger('position', {group: self.group, subjectID: self.subjectID, pos: self.selectedPosition, beta: self.beta});
-			};
 		},
 		showTooltip : function (tooltip, x, y, msg) {
 			if (this.hideLabel && msg != 'set' && msg != 'You') return;
@@ -408,6 +401,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 
 	rs.on_load(function() {
 		$scope.timeKeeper = new TimeKeeper();
+		$scope.frequency = rs.config.frequency;
 		rs.trigger("next_round");
 	});
 }]);
