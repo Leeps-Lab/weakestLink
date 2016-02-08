@@ -373,7 +373,6 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 		},
 		setAutomation : function (tick) { var self = this;
 			var aa = this.alphaAutomation, ba = this.betaAutomation, node = tick;
-			console.log(ba);
 			for (var i = aa.length-1; i >= 0; i--) {
 				if (node >= aa[i][1]) {
 					if (aa[i][0] == 'linear' && aa[i+1]) {
@@ -400,7 +399,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 	};
 
 	rs.on_load(function() {
-		$scope.frequency = rs.config.frequency;
+		$scope.frequency = rs.config.frequency || 7;
 		$scope.timeKeeper = new TimeKeeper();
 		rs.trigger("next_round");
 	});

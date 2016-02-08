@@ -174,6 +174,7 @@ Redwood.controller("AdminCtrl", ["$rootScope", "$scope", "Admin", function($root
 		$scope.subjects[location].conversionRate = value.conversionRate;
 		$scope.subjects[location].showUpFee = value.showUpFee;
     $scope.subjects[location].total = value.total;
+    $scope.subjects[location].roundtotal = value.roundtotal;
 		// shows the information on the admin page
 	});
 

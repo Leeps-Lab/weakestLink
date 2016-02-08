@@ -88,6 +88,7 @@
             <th>Conversion Rate</th>
             <th>Show-Up Fee</th>
             <th>Total</th>
+            <th>Round Total</th>
           </tr>
           <tr ng-repeat="subject in subjects | orderBy : 'userid'">
             <td ng-bind="subject.userid"></td>
@@ -95,6 +96,7 @@
             <td ng-bind="subject.conversionRate | number:2"></td>
             <td ng-bind="subject.showUpFee | number:2"></td>
             <td ng-bind="subject.total | number:2"></td>
+            <td ng-bind="subject.roundtotal"></td>
           </tr>
         </table>
       </div>
