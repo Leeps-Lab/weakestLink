@@ -82,6 +82,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 			self.minPos = !isNaN(rs.config.minPos) ? rs.config.minPos : 0;
 			self.maxPos = !isNaN(rs.config.maxPos) ? rs.config.maxPos : 10;
 			self.minPay = rs.config.minPay; self.maxPay = rs.config.maxPay;
+			self.maxStat = rs.config.maxStat;
 			self.alphaAutomation = rs.config.alphaAutomation ? JSON.parse(rs.config.alphaAutomation.replace(/'/g,'"')) : [];
 			self.betaAutomation = rs.config.betaAutomation ? JSON.parse(rs.config.betaAutomation.replace(/'/g,'"')) : [];
 			self.minBeta = rs.config.minBeta ? rs.config.minBeta : -5;
@@ -113,8 +114,8 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						if (rs.config.showYourPayoff) {
 							var select = self.payoffRate.yours > 0 ? [0,1] : [1,0];
 							// where the payoff data is located
-							self.statData[select[0]].data.push([self.ticknum/$scope.frequency, self.payoffRate.yours]);
-							self.statData[select[1]].data.push([self.ticknum/$scope.frequency, 0]);
+							self.statData[select[0]].data.push([(self.maxStat/self.roundDurationInSeconds) * self.ticknum/$scope.frequency, self.payoffRate.yours]);
+							self.statData[select[1]].data.push([(self.maxStat/self.roundDurationInSeconds) * self.ticknum/$scope.frequency, 0]);
 						}
 
 						// what does this do?
@@ -262,7 +263,7 @@ Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", "Sy
 						return '<span style="margin:3px;">'+label+'</span>';
 					}
 				},
-				xaxis: { axisLabel: 'Time', min: 0, max: self.timer.getDurationInTicks() / $scope.frequency },
+				xaxis: { axisLabel: 'Time', min: 0, max: self.maxStat },//self.timer.getDurationInTicks() / $scope.frequency },
 				yaxis: { minTickSize: 1 }
 			};
 			if (self.maxPay) this.statOptions.yaxis.max = self.maxPay;

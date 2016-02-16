@@ -1,4 +1,3 @@
-period,pause,groups,grouping,roundDurationInSeconds,showYourPayoff,showAveragePayoff,showTopPayoff,subjectPositions,minPos,maxPos,minPay,maxPay,alphaAutomation,betaAutomation,minBeta,hideLabel,hideOtherPlayers,saturateAtZero,displayInstruction,hideTimer,interpolationRate,startingmoney,questionnaire,showUpFee,converstionRate,frequency
-0,,,,,,,,,,,,,,,,,,,FALSE,,,,TRUE,0,0.7,
-1,FALSE,0,"[[16, 6, 7, 2],[13, 1, 3, 10],[4, 9, 5, 8],[11, 12, 14, 15]]",60,TRUE,FALSE,FALSE,"[2,4,6,8]",1,10,-11,11,"[['hold', 0, 1]]","[['hold', 0, -2.5],['hold', 20, -0.25],['linear', 35, -0.25], ['hold', 45,-2.5]]",-2.5,TRUE,FALSE,FALSE,,FALSE,2,3,,,,7
-
+period,pause,groups,grouping,roundDurationInSeconds,showYourPayoff,showAveragePayoff,showTopPayoff,subjectPositions,minPos,maxPos,minPay,maxPay,alphaAutomation,betaAutomation,minBeta,hideLabel,hideOtherPlayers,saturateAtZero,displayInstruction,hideTimer,interpolationRate,startingmoney,questionnaire,showUpFee,converstionRate,frequency,maxStat
+0,,,,,,,,,,,,,,,,,,,FALSE,,,,TRUE,0,0.7,,
+1,FALSE,0,"[[16, 6, 7, 2],[13, 1, 3, 10],[4, 9, 5, 8],[11, 12, 14, 15]]",47,TRUE,FALSE,FALSE,"[2,4,6,8]",1,10,-11,11,"[['hold', 0, 1]]","[['hold', 0, -2.5],['hold', 20, -0.25],['linear', 35, -0.25], ['hold', 45,-2.5]]",-2.5,TRUE,FALSE,FALSE,,FALSE,2,3,,,,7,60
