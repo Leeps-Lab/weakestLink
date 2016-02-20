@@ -1,22 +1,4 @@
-<!DOCTYPE HTML>
-<html ng-app="Redwood">
-  <head>
-  	<title>Homotopy Admin</title>
-		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/lib/jquery/jquery.min.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/lib/bootstrap/bootstrap-3.1.1.min.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/lib/angular/angular-1.2.16.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/redwoodCore.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/redwoodHelpers.js"></script>
-		<script type="text/javascript" src="{{ STATIC_URL }}framework/js/redwoodAdmin.js"></script>
-		<link type="text/css" rel="stylesheet" href="{{ STATIC_URL }}framework/css/bootstrap.min.css"></link>
-		<script type="text/javascript">
-			{{ js }}
-		</script>
-		<style type="text/css">
-			{{ css }}
-		</style>
-	</head>
-	<body ng-controller="AdminCtrl">
+<div ng-controller="AdminCtrl">
 		<div class="navbar navbar-fixed-top container">
 			<div class="navbar-inner">
 				<div class="container-fluid">
@@ -111,5 +93,4 @@
 				</div>
 			</div>
 		</div>
-	</body>
-</html>
+  </div>

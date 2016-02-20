@@ -1,4 +1,4 @@
-Redwood.controller("SubjectCtrl", ["$rootScope", "$scope", "RedwoodSubject", function($rootScope, $scope, rs) {
+Redwood.controller("SubjectFinishCtrl", ["$rootScope", "$scope", "RedwoodSubject", function($rootScope, $scope, rs) {
 	rs.on_load(function() {
 		if (!rs.configs[0].questionnaire) {
 			$("#questionnaire").hide();
